@@ -220,7 +220,7 @@ async getEtiquetas(): Promise<string[]> {
     const batch = writeBatch(this.firestore);
     snapshot.forEach(docSnap => {
       const docRef = doc(this.firestore, 'productos', docSnap.id);
-      batch.update(docRef, { precioFinal: nuevoPrecio });
+      batch.update(docRef, { precioFinal: nuevoPrecio , precio:nuevoPrecio });
     });
     await batch.commit();
   }

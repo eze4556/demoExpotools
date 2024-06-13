@@ -22,7 +22,7 @@
       <ion-col size="2">Precio</ion-col>
       <ion-col size="2">Precio Final</ion-col>
       <ion-col size="2">Imagen</ion-col>
-      <ion-col size="2">Acciones</ion-col>
+      
     </ion-row>
     <ion-row *ngFor="let producto of productos">
       <ion-col size="2">{{ producto.nombre }}</ion-col>
@@ -99,6 +99,8 @@
             <ion-label position="stacked">Imagen</ion-label>
             <input type="file" (change)="onFileSelected($event)">
           </ion-item>
+
+ 
           <ion-footer>
             <ion-button expand="full" type="submit">{{ editMode ? 'Actualizar' : 'Agregar' }}</ion-button>
           </ion-footer>
