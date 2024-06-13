@@ -129,11 +129,12 @@ export class FirestoreService {
     if (categoria.imagen) {
       const storageRef = ref(this.storage, categoria.imagen);
       await deleteObject(storageRef);
-    }
+      }
 
-    // Eliminar el documento de la categoría
-    const categoriaRef = doc(this.firestore, 'categorias', categoria.id);
-    await deleteDoc(categoriaRef);
+      // Eliminar el documento de la categoría
+      const categoriaRef = doc(this.firestore, 'categorias', categoria.id);
+      await deleteDoc(categoriaRef);
+
   }
 
   // Productos
