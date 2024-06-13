@@ -1,0 +1,19 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-title>Gestionar Etiquetas</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-item>
+    <ion-label>Etiqueta</ion-label>
+    <ion-select [(ngModel)]="selectedEtiqueta">
+      <ion-select-option *ngFor="let etiqueta of etiquetas" [value]="etiqueta">{{ etiqueta }}</ion-select-option>
+    </ion-select>
+  </ion-item>
+  <ion-item>
+    <ion-label>Nuevo Precio</ion-label>
+    <ion-input type="number" [(ngModel)]="nuevoPrecio"></ion-input>
+  </ion-item>
+  <ion-button expand="full" (click)="actualizarPrecios()">Actualizar Precios</ion-button>
+</ion-content>

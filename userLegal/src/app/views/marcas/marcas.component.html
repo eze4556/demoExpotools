@@ -1,0 +1,58 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-title>Marcas</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-grid>
+    <ion-row>
+      <ion-col size="6" size-md="4" *ngFor="let marca of marcas">
+        <ion-card class="marca-card">
+          <img *ngIf="marca.imagen" [src]="marca.imagen" alt="Imagen de {{ marca.nombre }}" />
+          <ion-card-header>
+            <ion-card-title>{{ marca.nombre }}</ion-card-title>
+            <ion-buttons slot="end">
+              <ion-button color="danger" fill="clear" (click)="eliminarMarca(marca)">
+                <ion-icon name="trash-outline"></ion-icon>
+              </ion-button>
+            </ion-buttons>
+          </ion-card-header>
+        </ion-card>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+
+  <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+    <ion-fab-button id="open-modal">
+      <ion-icon name="add"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
+
+  <ion-modal trigger="open-modal" [breakpoints]="[0, 0.5, 0.8]" [initialBreakpoint]="0.5">
+    <ng-template>
+      <ion-header>
+        <ion-toolbar color="primary">
+          <ion-title>Nueva Marca</ion-title>
+          <ion-buttons slot="end">
+            <ion-button id="close-modal">Cerrar</ion-button>
+          </ion-buttons>
+        </ion-toolbar>
+      </ion-header>
+      <ion-content class="ion-padding">
+        <form #marcaForm="ngForm">
+          <ion-item>
+            <ion-label position="floating">Nombre</ion-label>
+            <ion-input [(ngModel)]="nuevaMarca.nombre" name="nombre"></ion-input>
+          </ion-item>
+          <ion-item>
+            <ion-label position="floating">Imagen</ion-label>
+            <ion-button (click)="filePicker.click()">Seleccionar Imagen</ion-button>
+            <input type="file" #filePicker (change)="onFileSelected($event)" hidden />
+          </ion-item>
+          <ion-button expand="block" (click)="agregarMarca()">Agregar</ion-button>
+        </form>
+      </ion-content>
+    </ng-template>
+  </ion-modal>
+</ion-content>

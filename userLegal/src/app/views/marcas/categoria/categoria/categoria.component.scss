@@ -1,0 +1,29 @@
+/* Estilos inspirados en MarcasPage */
+ion-card {
+  border-radius: 10px; // Bordes redondeados
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1); // Sombras sutiles
+}
+
+ion-card-header {
+  padding: 16px; // Más espacio interno
+}
+
+ion-card-title {
+  font-size: 1.2em; // Título más grande
+  font-weight: 600;  // Título más grueso
+}
+
+ion-grid {
+  padding: 16px; // Espacio entre las cards
+}
+
+.categoria-card img {
+  max-height: 150px; // Altura máxima para la imagen
+  object-fit: cover;  // Ajusta la imagen sin deformarla
+  border-radius: 10px 10px 0 0; // Bordes redondeados en la parte superior
+}
+
+/* Personaliza el color primario de Ionic si es necesario */
+ion-toolbar {
+  --background: #007bff; // Color azul similar a MarcasPage (ajusta si es diferente)
+}
