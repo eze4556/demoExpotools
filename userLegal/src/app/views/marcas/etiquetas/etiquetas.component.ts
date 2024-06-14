@@ -21,8 +21,8 @@ import { DocumentReference } from '@angular/fire/firestore';
 })
 export class GestionEtiquetasPage implements OnInit {
   etiquetas: string[] = [];
-  selectedEtiqueta: string = '';
-  nuevoPrecio: number = 0;
+   selectedEtiqueta: string = '';
+  porcentajeAumento: number | null = null;
 
   constructor(private firestoreService: FirestoreService) {}
 
@@ -35,8 +35,8 @@ export class GestionEtiquetasPage implements OnInit {
   }
 
   async actualizarPrecios() {
-    if (this.selectedEtiqueta && this.nuevoPrecio > 0) {
-      await this.firestoreService.actualizarPreciosPorEtiqueta(this.selectedEtiqueta, this.nuevoPrecio);
+    if (this.selectedEtiqueta && this.porcentajeAumento > 0) {
+      await this.firestoreService.actualizarPreciosPorEtiqueta(this.selectedEtiqueta, this.porcentajeAumento);
       alert('Precios actualizados con éxito');
     }
   }

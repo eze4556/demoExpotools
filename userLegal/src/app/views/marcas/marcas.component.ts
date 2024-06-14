@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { FormGroup, FormsModule,FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 
 import { Component, OnInit, ViewChild,ChangeDetectorRef } from '@angular/core';
-import { IonModal, IonicModule } from '@ionic/angular';
+import { IonModal, IonicModule,LoadingController } from '@ionic/angular';
 import { FirestoreService } from '../../common/services/firestore.service';
 import { Marca } from '../../common/models/marca.model';
 import { AlertController } from '@ionic/angular';
@@ -29,10 +29,13 @@ marcaAEditar: Marca | null = null;
   @ViewChild(IonModal) modal!: IonModal;
 
 
+
+
   constructor(
     private FirestoreService: FirestoreService,
     private alertController: AlertController,
     private fb: FormBuilder,
+    private loadingController: LoadingController,
     private changeDetectorRef: ChangeDetectorRef
   ) {
     this.marcaForm = this.fb.group({
@@ -76,7 +79,7 @@ marcaAEditar: Marca | null = null;
     const nuevaMarca: Marca = { nombre, imagen: '' };
     try {
       const marcaAgregada = await this.FirestoreService.addMarca(nuevaMarca, imagen);
-      this.marcas.push(marcaAgregada); // Asegurarse de que la marca agregada tenga el id correcto
+      this.marcas.push(marcaAgregada); 
       console.log('Marca agregada:', marcaAgregada);
     } catch (error) {
       console.error('Error agregando la marca:', error);
@@ -86,21 +89,34 @@ marcaAEditar: Marca | null = null;
 
 
 
- async agregarOEditarProducto() {
+  async agregarOEditarMarca() {
     if (this.marcaForm.invalid) {
       return;
     }
 
     const marcaData = this.marcaForm.value;
-    if (this.editMode && this.marcaAEditar) {
-      marcaData.id = this.marcaAEditar.id;
-      await this.FirestoreService.updateMarca(marcaData, this.imagenMarca);
-    } else {
-      await this.FirestoreService.addMarca(marcaData, this.imagenMarca);
-    }
 
-    this.closeModal();
-    this.cargarMarcas();
+    const loading = await this.loadingController.create({
+      message: 'Guardando...',
+    });
+    await loading.present();
+
+    try {
+      if (this.editMode && this.marcaAEditar) {
+        marcaData.id = this.marcaAEditar.id;
+        await this.FirestoreService.updateMarca(marcaData, this.imagenMarca);
+      } else {
+        await this.FirestoreService.addMarca(marcaData, this.imagenMarca);
+      }
+      this.showSuccessAlert('Marca guardada con éxito.');
+    } catch (error) {
+      console.error('Error al guardar la marca:', error);
+      this.showErrorAlert('Error al guardar la marca. Por favor, inténtalo de nuevo.');
+    } finally {
+      await loading.dismiss();
+      this.closeModal();
+      this.cargarMarcas();
+    }
   }
 
 
@@ -132,14 +148,59 @@ async eliminarMarca(marca: Marca) {
       return;
     }
 
-    console.log(`Eliminando marca con id: ${marca.id}`);
-    try {
-      await this.FirestoreService.deleteMarca(marca);
-      this.marcas = this.marcas.filter(m => m.id !== marca.id);
-      console.log(`Marca eliminada: ${marca.id}`);
-    } catch (error) {
-      console.error('Error eliminando la marca:', error);
-    }
+    const alert = await this.alertController.create({
+      header: 'Confirmar Eliminación',
+      message: `¿Estás seguro de que quieres eliminar la marca "${marca.nombre}"? Esta acción no se puede deshacer.`,
+      buttons: [
+        {
+          text: 'Cancelar',
+          role: 'cancel',
+        },
+        {
+          text: 'Eliminar',
+          handler: async () => {
+            const loading = await this.loadingController.create({
+              message: 'Eliminando...',
+            });
+            await loading.present();
+
+            try {
+              await this.FirestoreService.deleteMarca(marca);
+              this.marcas = this.marcas.filter(m => m.id !== marca.id);
+              console.log(`Marca eliminada: ${marca.id}`);
+              this.showSuccessAlert('La marca se ha eliminado con éxito.');
+              this.cargarMarcas();
+            } catch (error) {
+              console.error('Error eliminando la marca:', error);
+              this.showErrorAlert('Error al eliminar la marca. Por favor, inténtalo de nuevo.');
+            } finally {
+              await loading.dismiss();
+              this.changeDetectorRef.detectChanges();
+            }
+          },
+        },
+      ],
+    });
+
+    await alert.present();
+  }
+
+  async showSuccessAlert(message: string) {
+    const alert = await this.alertController.create({
+      header: 'Éxito',
+      message,
+      buttons: ['OK'],
+    });
+    await alert.present();
+  }
+
+  async showErrorAlert(message: string) {
+    const alert = await this.alertController.create({
+      header: 'Error',
+      message,
+      buttons: ['OK'],
+    });
+    await alert.present();
   }
 
 }

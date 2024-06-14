@@ -1,5 +1,5 @@
 import { ChangeDetectorRef, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
-import { IonModal, IonicModule } from '@ionic/angular';
+import { IonModal, IonicModule, LoadingController } from '@ionic/angular';
 import { OverlayEventDetail } from '@ionic/core/components';
 import { FirestoreService } from '../../../../common/services/firestore.service';
 import { Producto } from '../../../../common/models/producto.model';
@@ -36,6 +36,7 @@ export class ProductosPage implements OnInit {
     private firestoreService: FirestoreService,
     private alertController: AlertController,
     private fb: FormBuilder,
+    private loadingController: LoadingController,
     private changeDetectorRef: ChangeDetectorRef
   ) {
     this.productoForm = this.fb.group({
@@ -126,21 +127,46 @@ export class ProductosPage implements OnInit {
 
     const productoData = this.productoForm.value;
     productoData.precioFinal = this.productoForm.get('precioFinal')!.value;
-    if (this.editMode && this.productoAEditar) {
-      productoData.id = this.productoAEditar.id;
-      await this.firestoreService.updateProducto(productoData, this.imagenProducto);
-    } else {
-      await this.firestoreService.addProducto(productoData, this.imagenProducto);
-    }
 
-    this.closeModal();
-    this.cargarProductos();
+    const loading = await this.loadingController.create({
+      message: 'Guardando...',
+    });
+    await loading.present();
+
+    try {
+      if (this.editMode && this.productoAEditar) {
+        productoData.id = this.productoAEditar.id;
+        await this.firestoreService.updateProducto(productoData, this.imagenProducto);
+      } else {
+        await this.firestoreService.addProducto(productoData, this.imagenProducto);
+      }
+      this.showSuccessAlert('Producto guardado con éxito.');
+    } catch (error) {
+      console.error('Error al guardar el producto:', error);
+      this.showErrorAlert('Error al guardar el producto. Por favor, inténtalo de nuevo.');
+    } finally {
+      await loading.dismiss();
+      this.closeModal();
+      this.cargarProductos();
+    }
   }
 
   async eliminarProducto(producto: Producto) {
+    if (!producto) {
+      console.error('El producto es null o undefined.');
+      return;
+    }
+
+    console.log('Producto a eliminar:', producto);
+
+    if (!producto.id) {
+      console.error('El id del producto es null o undefined.');
+      return;
+    }
+
     const alert = await this.alertController.create({
       header: 'Confirmar Eliminación',
-      message: `¿Estás seguro de que quieres eliminar el producto "${producto.nombre}"?`,
+      message: `¿Estás seguro de que quieres eliminar el producto "${producto.nombre}"? Esta acción no se puede deshacer.`,
       buttons: [
         {
           text: 'Cancelar',
@@ -149,9 +175,24 @@ export class ProductosPage implements OnInit {
         {
           text: 'Eliminar',
           handler: async () => {
-            await this.firestoreService.deleteProducto(producto);
-            this.cargarProductos();
-            this.changeDetectorRef.detectChanges();
+            const loading = await this.loadingController.create({
+              message: 'Eliminando...',
+            });
+            await loading.present();
+
+            try {
+              await this.firestoreService.deleteProducto(producto);
+              this.productos = this.productos.filter(p => p.id !== producto.id);
+              console.log(`Producto eliminado: ${producto.id}`);
+              this.showSuccessAlert('El producto se ha eliminado con éxito.');
+              this.cargarProductos();
+            } catch (error) {
+              console.error('Error eliminando el producto:', error);
+              this.showErrorAlert('Error al eliminar el producto. Por favor, inténtalo de nuevo.');
+            } finally {
+              await loading.dismiss();
+              this.changeDetectorRef.detectChanges();
+            }
           },
         },
       ],
@@ -159,6 +200,7 @@ export class ProductosPage implements OnInit {
 
     await alert.present();
   }
+
 
   editarProducto(producto: Producto) {
     this.productoAEditar = producto;
@@ -178,5 +220,23 @@ export class ProductosPage implements OnInit {
     if (ev.detail.role === 'confirm') {
       this.agregarOEditarProducto();
     }
+  }
+
+  async showSuccessAlert(message: string) {
+    const alert = await this.alertController.create({
+      header: 'Éxito',
+      message,
+      buttons: ['OK'],
+    });
+    await alert.present();
+  }
+
+  async showErrorAlert(message: string) {
+    const alert = await this.alertController.create({
+      header: 'Error',
+      message,
+      buttons: ['OK'],
+    });
+    await alert.present();
   }
 }

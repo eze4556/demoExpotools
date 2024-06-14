@@ -311,16 +311,19 @@ async getEtiquetas(): Promise<string[]> {
     return Array.from(etiquetas);
   }
 
-  async actualizarPreciosPorEtiqueta(etiqueta: string, nuevoPrecio: number): Promise<void> {
-    const productosRef = collection(this.firestore, 'productos');
-    const q = query(productosRef, where('etiqueta', '==', etiqueta));
-    const snapshot = await getDocs(q);
-    const batch = writeBatch(this.firestore);
-    snapshot.forEach(docSnap => {
-      const docRef = doc(this.firestore, 'productos', docSnap.id);
-      batch.update(docRef, { precioFinal: nuevoPrecio , precio:nuevoPrecio });
-    });
-    await batch.commit();
-  }
+  async actualizarPreciosPorEtiqueta(etiqueta: string, porcentaje: number): Promise<void> {
+  const productosRef = collection(this.firestore, 'productos');
+  const q = query(productosRef, where('etiqueta', '==', etiqueta));
+  const snapshot = await getDocs(q);
+  const batch = writeBatch(this.firestore);
 
+  snapshot.forEach(docSnap => {
+    const data = docSnap.data() as Producto;
+    const nuevoPrecio = data.precio * (1 + porcentaje / 100);
+    const docRef = doc(this.firestore, 'productos', docSnap.id);
+    batch.update(docRef, { precioFinal: nuevoPrecio, precio: nuevoPrecio });
+  });
+
+  await batch.commit();
+}
 }

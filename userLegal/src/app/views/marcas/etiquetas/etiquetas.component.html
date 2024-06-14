@@ -1,6 +1,9 @@
 <ion-header>
   <ion-toolbar color="primary">
     <ion-title>Gestionar Etiquetas</ion-title>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/"></ion-back-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
@@ -8,12 +11,16 @@
   <ion-item>
     <ion-label>Etiqueta</ion-label>
     <ion-select [(ngModel)]="selectedEtiqueta">
-      <ion-select-option *ngFor="let etiqueta of etiquetas" [value]="etiqueta">{{ etiqueta }}</ion-select-option>
+      <ion-select-option *ngFor="let etiqueta of etiquetas" [value]="etiqueta">
+        {{ etiqueta }}
+      </ion-select-option>
     </ion-select>
   </ion-item>
+
   <ion-item>
-    <ion-label>Nuevo Precio</ion-label>
-    <ion-input type="number" [(ngModel)]="nuevoPrecio"></ion-input>
+    <ion-label   >Porcentaje de Aumento</ion-label>
+    <ion-input type="number"  [(ngModel)]="porcentajeAumento"  placeholder="Poner porcentaje en numero sin el % ejemplo : 5 (eso va a equivaler a un 5%)">    </ion-input>
   </ion-item>
-  <ion-button expand="full" (click)="actualizarPrecios()">Actualizar Precios</ion-button>
+
+  <ion-button (click)="actualizarPrecios()">Actualizar Precios</ion-button>
 </ion-content>

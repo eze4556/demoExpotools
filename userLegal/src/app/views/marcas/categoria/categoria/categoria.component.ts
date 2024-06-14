@@ -1,5 +1,5 @@
 import { ChangeDetectorRef, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
-import { IonModal, IonicModule } from '@ionic/angular';
+import { IonModal, IonicModule, LoadingController } from '@ionic/angular';
 import { OverlayEventDetail } from '@ionic/core/components';
 import { FirestoreService } from '../../../../common/services/firestore.service';
 import { Categoria } from '../../../../common/models/categoria.model';
@@ -28,6 +28,7 @@ export class CategoriasPage implements OnInit {
   constructor(
     private firestoreService: FirestoreService,
     private alertController: AlertController,
+    private loadingController: LoadingController,
     private fb: FormBuilder,
     private changeDetectorRef: ChangeDetectorRef
   ) {
@@ -78,22 +79,36 @@ export class CategoriasPage implements OnInit {
     }
   }
 
-  async agregarOEditarCategoria() {
-    if (this.categoriaForm.invalid) {
-      return;
-    }
+ async agregarOEditarCategoria() {
+  if (this.categoriaForm.invalid) {
+    return;
+  }
 
-    const categoriaData = this.categoriaForm.value;
+  const categoriaData = this.categoriaForm.value;
+
+  const loading = await this.loadingController.create({
+    message: 'Guardando...',
+  });
+  await loading.present();
+
+  try {
     if (this.editMode && this.categoriaAEditar) {
       categoriaData.id = this.categoriaAEditar.id;
       await this.firestoreService.updateCategoria(categoriaData, this.imagenCategoria);
     } else {
       await this.firestoreService.addCategoria(categoriaData, this.imagenCategoria);
     }
-
+    this.showSuccessAlert('Categoría guardada con éxito.');
+  } catch (error) {
+    console.error('Error al guardar la categoría:', error);
+    this.showErrorAlert('Error al guardar la categoría. Por favor, inténtalo de nuevo.');
+  } finally {
+    await loading.dismiss();
     this.closeModal();
     this.cargarCategorias();
   }
+}
+
 
   openModal() {
     this.isModalOpen = true;
@@ -119,13 +134,63 @@ export class CategoriasPage implements OnInit {
       return;
     }
 
-    console.log(`Eliminando categoría con id: ${categoria.id}`);
-    try {
-      await this.firestoreService.deleteCategoria(categoria);
-      this.categorias = this.categorias.filter(c => c.id !== categoria.id);
-      console.log(`Categoría eliminada: ${categoria.id}`);
-    } catch (error) {
-      console.error('Error eliminando la categoría:', error);
-    }
+    const alert = await this.alertController.create({
+      header: 'Confirmar Eliminación',
+      message: `¿Estás seguro de que quieres eliminar la categoría "${categoria.nombre}"? Esta acción no se puede deshacer.`,
+      buttons: [
+        {
+          text: 'Cancelar',
+          role: 'cancel',
+        },
+        {
+          text: 'Eliminar',
+          handler: async () => {
+            const loading = await this.loadingController.create({
+              message: 'Eliminando...',
+            });
+            await loading.present();
+
+            try {
+              await this.firestoreService.deleteCategoria(categoria);
+              this.categorias = this.categorias.filter(c => c.id !== categoria.id);
+              console.log(`Categoría eliminada: ${categoria.id}`);
+              this.showSuccessAlert('La categoría se ha eliminado con éxito.');
+              this.cargarCategorias();
+            } catch (error) {
+              console.error('Error eliminando la categoría:', error);
+              this.showErrorAlert('Error al eliminar la categoría. Por favor, inténtalo de nuevo.');
+            } finally {
+              await loading.dismiss();
+              this.changeDetectorRef.detectChanges();
+            }
+          },
+        },
+      ],
+    });
+
+    await alert.present();
   }
+
+  async showSuccessAlert(message: string) {
+    const alert = await this.alertController.create({
+      header: 'Éxito',
+      message,
+      buttons: ['OK'],
+    });
+    await alert.present();
+  }
+
+  async showErrorAlert(message: string) {
+    const alert = await this.alertController.create({
+      header: 'Error',
+      message,
+      buttons: ['OK'],
+    });
+    await alert.present();
+  }
+
+
+
+
+
 }
