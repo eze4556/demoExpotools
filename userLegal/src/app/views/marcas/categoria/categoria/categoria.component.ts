@@ -1,5 +1,5 @@
 import { ChangeDetectorRef, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
-import { IonModal, IonicModule, LoadingController } from '@ionic/angular';
+import {   LoadingController } from '@ionic/angular';
 import { OverlayEventDetail } from '@ionic/core/components';
 import { FirestoreService } from '../../../../common/services/firestore.service';
 import { Categoria } from '../../../../common/models/categoria.model';
@@ -11,6 +11,8 @@ import {
   IonItem,
   IonButton,
   IonLabel,
+  IonFooter,
+  IonModal,
   IonInput,
   IonContent,
   IonGrid,
@@ -18,6 +20,7 @@ import {
   IonCol,
   IonCard,
   IonCardHeader,
+  IonIcon,
   IonCardTitle,
   IonList,
   IonCardContent,
@@ -27,11 +30,13 @@ import {
 
 @Component({
   standalone: true,
-  imports: [IonicModule, CommonModule, FormsModule, ReactiveFormsModule,IonAvatar, IonSearchbar, IonSpinner, IonButtons, IonBackButton,
+  imports: [ CommonModule, FormsModule, ReactiveFormsModule,IonAvatar, IonSearchbar, IonSpinner, IonButtons, IonBackButton,
     IonHeader,
     IonTitle,
     IonToolbar,
     IonItem,
+     IonIcon,
+     IonFooter,
     IonInput,
     IonLabel,
     IonContent,
@@ -43,6 +48,7 @@ import {
     IonCardTitle,
     IonList,
     IonCardContent,
+     IonModal,
     CommonModule,
     FormsModule,
     ReactiveFormsModule,

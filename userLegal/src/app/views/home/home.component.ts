@@ -17,12 +17,14 @@ import {
   IonCardContent,
   IonToolbar,
   IonTitle,
+  IonApp,
+  IonIcon,
   IonHeader, IonBackButton, IonButtons, IonSpinner, IonSelectOption, IonSelect, IonSearchbar, IonAvatar } from '@ionic/angular/standalone';
 
 
 
 import { ChangeDetectorRef, ElementRef, ViewChild } from '@angular/core';
-import { IonModal, IonicModule } from '@ionic/angular';
+// import { IonModal, IonicModule } from '@ionic/angular';
 import { OverlayEventDetail } from '@ionic/core/components';
 
 import { AlertController } from '@ionic/angular';
@@ -36,7 +38,7 @@ import { Router, RouterLink } from '@angular/router';
 
 @Component({
    standalone: true,
-  imports: [IonicModule, CommonModule, FormsModule, ReactiveFormsModule,HttpClientModule, RouterLink, IonAvatar, IonSearchbar, IonSpinner, IonButtons, IonBackButton,
+  imports: [ CommonModule, FormsModule, ReactiveFormsModule,HttpClientModule, RouterLink, IonAvatar, IonSearchbar, IonSpinner, IonButtons, IonBackButton,
     IonHeader,
     IonTitle,
     IonToolbar,
@@ -57,7 +59,8 @@ import { Router, RouterLink } from '@angular/router';
     ReactiveFormsModule,
     IonSelectOption,
     IonSelect,
-    IonButton],
+    IonApp,
+    IonButton, IonIcon],
   selector: 'app-home',
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss']

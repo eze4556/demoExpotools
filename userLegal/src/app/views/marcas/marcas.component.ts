@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { FormGroup, FormsModule,FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 
 import { Component, OnInit, ViewChild,ChangeDetectorRef } from '@angular/core';
-import { IonModal, IonicModule,LoadingController } from '@ionic/angular';
+import {  LoadingController } from '@ionic/angular';
 import { FirestoreService } from '../../common/services/firestore.service';
 import { Marca } from '../../common/models/marca.model';
 import { AlertController } from '@ionic/angular';
@@ -14,10 +14,13 @@ import {
   IonLabel,
   IonInput,
   IonContent,
+  IonFooter,
   IonGrid,
+  IonModal,
   IonRow,
   IonCol,
   IonCard,
+  IonIcon,
   IonCardHeader,
   IonCardTitle,
   IonList,
@@ -28,12 +31,15 @@ import {
 
 @Component({
  standalone: true,
-  imports: [IonicModule, CommonModule, FormsModule, ReactiveFormsModule,IonAvatar, IonSearchbar, IonSpinner, IonButtons, IonBackButton,
+  imports: [ CommonModule, FormsModule, ReactiveFormsModule,IonAvatar, IonSearchbar, IonSpinner, IonButtons, IonBackButton,
     IonHeader,
+    IonIcon,
     IonTitle,
+    IonFooter,
     IonToolbar,
     IonItem,
     IonInput,
+    IonModal,
     IonLabel,
     IonContent,
     IonGrid,
