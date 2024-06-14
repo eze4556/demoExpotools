@@ -16,16 +16,27 @@ import { CommonModule } from '@angular/common';
 })
 export class CategoriasPage implements OnInit {
   categorias: Categoria[] = [];
+     nuevaCategoria: Categoria = { nombre: '', imagen: '' };
   categoriaForm: FormGroup;
   isModalOpen: boolean = false;
   editMode: boolean = false;
   categoriaAEditar: Categoria | null = null;
   imagenCategoria: File | null = null;
 
+   @ViewChild(IonModal) modal!: IonModal;
+
   constructor(
     private firestoreService: FirestoreService,
-    private alertController: AlertController
-  ) {}
+    private alertController: AlertController,
+    private fb: FormBuilder,
+    private changeDetectorRef: ChangeDetectorRef
+  ) {
+    this.categoriaForm = this.fb.group({
+      id: [''],
+      nombre: ['', Validators.required],
+      imagen: ['']
+    });
+  }
 
   async ngOnInit() {
     // this.cargarCategorias();
@@ -33,24 +44,30 @@ export class CategoriasPage implements OnInit {
     console.log('Categorías obtenidas en ngOnInit:', this.categorias);
   }
 
+   cancel() {
+    this.modal.dismiss(null, 'cancel');
+  }
+
+  confirm() {
+    this.modal.dismiss(this.nuevaCategoria, 'confirm');
+  }
+
+   onWillDismiss(event: Event) {
+    const ev = event as CustomEvent<OverlayEventDetail<string>>;
+    if (ev.detail.role === 'confirm') {
+      // this.agregarCategoria();
+    }
+  }
+
   async cargarCategorias() {
     this.categorias = await this.firestoreService.getCategorias();
-    this.changeDetectorRef.detectChanges();
   }
 
   onFileSelected(event: any) {
     this.imagenCategoria = event.target.files[0];
   }
 
-  // async agregarCategoria() {
-  //   await this.firestoreService.addCategoria(this.nuevaCategoria, this.imagenCategoria);
-  //   this.nuevaCategoria = { nombre: '', imagen: '' };
-  //   this.imagenCategoria = null;
-  //   this.cargarCategorias();
-  //   this.modal.dismiss();
-  // }
-
-   async agregarCategoria(nombre: string, imagen: File) {
+  async agregarCategoria(nombre: string, imagen: File) {
     const nuevaCategoria: Categoria = { nombre, imagen: '' };
     try {
       const categoriaAgregada = await this.firestoreService.addCategoria(nuevaCategoria, imagen);
@@ -61,45 +78,35 @@ export class CategoriasPage implements OnInit {
     }
   }
 
-  cancel() {
-    this.modal.dismiss(null, 'cancel');
-  }
-
-  confirm() {
-    this.modal.dismiss(this.nuevaCategoria, 'confirm');
-  }
-
-  onWillDismiss(event: Event) {
-    const ev = event as CustomEvent<OverlayEventDetail<string>>;
-    if (ev.detail.role === 'confirm') {
-      // this.agregarCategoria();
+  async agregarOEditarCategoria() {
+    if (this.categoriaForm.invalid) {
+      return;
     }
+
+    const categoriaData = this.categoriaForm.value;
+    if (this.editMode && this.categoriaAEditar) {
+      categoriaData.id = this.categoriaAEditar.id;
+      await this.firestoreService.updateCategoria(categoriaData, this.imagenCategoria);
+    } else {
+      await this.firestoreService.addCategoria(categoriaData, this.imagenCategoria);
+    }
+
+    this.closeModal();
+    this.cargarCategorias();
   }
 
-  // async eliminarCategoria(categoria: Categoria) {
-  //   const alert = await this.alertController.create({
-  //     header: 'Confirmar Eliminación',
-  //     message: `¿Estás seguro de que quieres eliminar la categoría "${categoria.nombre}"?`,
-  //     buttons: [
-  //       {
-  //         text: 'Cancelar',
-  //         role: 'cancel',
-  //       },
-  //       {
-  //         text: 'Eliminar',
-  //         handler: async () => {
-  //           await this.firestoreService.deleteCategoria(categoria);
-  //           this.cargarCategorias();
-  //         },
-  //       },
-  //     ],
-  //   });
+  openModal() {
+    this.isModalOpen = true;
+    this.editMode = false;
+    this.categoriaForm.reset();
+  }
 
-  //   await alert.present();
-  // }
+  closeModal() {
+    this.isModalOpen = false;
+    this.imagenCategoria = null;
+  }
 
-
- async eliminarCategoria(categoria: Categoria) {
+  async eliminarCategoria(categoria: Categoria) {
     if (!categoria) {
       console.error('La categoría es null o undefined.');
       return;
@@ -121,7 +128,4 @@ export class CategoriasPage implements OnInit {
       console.error('Error eliminando la categoría:', error);
     }
   }
-
-
-
 }

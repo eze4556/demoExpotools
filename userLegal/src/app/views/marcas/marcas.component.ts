@@ -70,14 +70,7 @@ marcaAEditar: Marca | null = null;
     this.imagenMarca = event.target.files[0];
   }
 
-  // async agregarMarca() {
-  //   await this.FirestoreService.addMarca(this.nuevaMarca, this.imagenMarca);
-  //   this.nuevaMarca = { nombre: '', imagen: '' };
-  //   this.imagenMarca = null;
-  //   this.cargarMarcas();
 
-  //   this.modal.dismiss();
-  // }
 
    async agregarMarca(nombre: string, imagen: File) {
     const nuevaMarca: Marca = { nombre, imagen: '' };
@@ -124,36 +117,6 @@ marcaAEditar: Marca | null = null;
     this.imagenMarca = null;
   }
 
-  //   editarProducto(producto: Producto) {
-  //   this.productoAEditar = producto;
-  //   this.editMode = true;
-  //   this.productoForm.patchValue(producto);
-  //   this.isModalOpen = true;
-  // }
-
-
-  // async eliminarMarca(marca: Marca) {
-  //   const alert = await this.alertController.create({
-  //     header: 'Confirmar Eliminación',
-  //     message: `¿Estás seguro de que quieres eliminar la marca "${marca.nombre}"?`,
-  //     buttons: [
-  //       {
-  //         text: 'Cancelar',
-  //         role: 'cancel',
-  //       },
-  //       {
-  //         text: 'Eliminar',
-  //         handler: async () => {
-  //           await this.FirestoreService.deleteMarca(marca);
-  //           this.cargarMarcas();
-  //           this.changeDetectorRef.detectChanges();
-  //         },
-  //       },
-  //     ],
-  //   });
-
-  //   await alert.present();
-  // }
 
 
 async eliminarMarca(marca: Marca) {
