@@ -1,26 +1,26 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { IonModal, IonicModule } from '@ionic/angular';
 import { OverlayEventDetail } from '@ionic/core/components';
 import { FirestoreService } from '../../../../common/services/firestore.service';
 import { Categoria } from '../../../../common/models/categoria.model';
 import { AlertController } from '@ionic/angular';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 
 @Component({
   standalone: true,
-  imports: [IonicModule, CommonModule, FormsModule],
+  imports: [IonicModule, CommonModule, FormsModule, ReactiveFormsModule],
   selector: 'app-categorias',
   templateUrl: './categoria.component.html',
-   styleUrls: ['./categoria.component.scss'],
-
+  styleUrls: ['./categoria.component.scss'],
 })
 export class CategoriasPage implements OnInit {
   categorias: Categoria[] = [];
-  nuevaCategoria: Categoria = { nombre: '', imagen: '' };
+  categoriaForm: FormGroup;
+  isModalOpen: boolean = false;
+  editMode: boolean = false;
+  categoriaAEditar: Categoria | null = null;
   imagenCategoria: File | null = null;
-
-  @ViewChild(IonModal) modal!: IonModal;
 
   constructor(
     private firestoreService: FirestoreService,
@@ -35,6 +35,7 @@ export class CategoriasPage implements OnInit {
 
   async cargarCategorias() {
     this.categorias = await this.firestoreService.getCategorias();
+    this.changeDetectorRef.detectChanges();
   }
 
   onFileSelected(event: any) {
