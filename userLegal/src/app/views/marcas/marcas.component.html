@@ -54,12 +54,12 @@
 
  <ion-content>
         <form [formGroup]="marcaForm" (ngSubmit)="agregarOEditarProducto()">
-        
+
           <ion-item>
             <ion-label position="stacked">Nombre</ion-label>
             <ion-input formControlName="nombre"></ion-input>
           </ion-item>
-          
+
           <ion-item>
             <ion-label position="stacked">Imagen</ion-label>
             <input type="file" (change)="onFileSelected($event)">
