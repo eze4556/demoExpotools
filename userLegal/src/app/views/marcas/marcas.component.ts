@@ -8,10 +8,48 @@ import { Marca } from '../../common/models/marca.model';
 import { AlertController } from '@ionic/angular';
 import { OverlayEventDetail } from '@ionic/core/components';
 
+import {
+  IonItem,
+  IonButton,
+  IonLabel,
+  IonInput,
+  IonContent,
+  IonGrid,
+  IonRow,
+  IonCol,
+  IonCard,
+  IonCardHeader,
+  IonCardTitle,
+  IonList,
+  IonCardContent,
+  IonToolbar,
+  IonTitle,
+  IonHeader, IonBackButton, IonButtons, IonSpinner, IonSelectOption, IonSelect, IonSearchbar, IonAvatar } from '@ionic/angular/standalone';
 
 @Component({
  standalone: true,
-  imports: [IonicModule, CommonModule, FormsModule, ReactiveFormsModule],
+  imports: [IonicModule, CommonModule, FormsModule, ReactiveFormsModule,IonAvatar, IonSearchbar, IonSpinner, IonButtons, IonBackButton,
+    IonHeader,
+    IonTitle,
+    IonToolbar,
+    IonItem,
+    IonInput,
+    IonLabel,
+    IonContent,
+    IonGrid,
+    IonRow,
+    IonCol,
+    IonCard,
+    IonCardHeader,
+    IonCardTitle,
+    IonList,
+    IonCardContent,
+    CommonModule,
+    FormsModule,
+    ReactiveFormsModule,
+    IonSelectOption,
+    IonSelect,
+    IonButton],
   selector: 'app-marcas',
   templateUrl: './marcas.component.html',
   styleUrls: ['./marcas.component.scss'],
@@ -79,7 +117,7 @@ marcaAEditar: Marca | null = null;
     const nuevaMarca: Marca = { nombre, imagen: '' };
     try {
       const marcaAgregada = await this.FirestoreService.addMarca(nuevaMarca, imagen);
-      this.marcas.push(marcaAgregada); 
+      this.marcas.push(marcaAgregada);
       console.log('Marca agregada:', marcaAgregada);
     } catch (error) {
       console.error('Error agregando la marca:', error);

@@ -1,6 +1,24 @@
 import { Component, OnInit } from '@angular/core';
 import { HttpClient,HttpClientModule } from '@angular/common/http';
 
+import {
+  IonItem,
+  IonButton,
+  IonLabel,
+  IonInput,
+  IonContent,
+  IonGrid,
+  IonRow,
+  IonCol,
+  IonCard,
+  IonCardHeader,
+  IonCardTitle,
+  IonList,
+  IonCardContent,
+  IonToolbar,
+  IonTitle,
+  IonHeader, IonBackButton, IonButtons, IonSpinner, IonSelectOption, IonSelect, IonSearchbar, IonAvatar } from '@ionic/angular/standalone';
+
 
 
 import { ChangeDetectorRef, ElementRef, ViewChild } from '@angular/core';
@@ -18,7 +36,28 @@ import { Router, RouterLink } from '@angular/router';
 
 @Component({
    standalone: true,
-  imports: [IonicModule, CommonModule, FormsModule, ReactiveFormsModule,HttpClientModule, RouterLink],
+  imports: [IonicModule, CommonModule, FormsModule, ReactiveFormsModule,HttpClientModule, RouterLink, IonAvatar, IonSearchbar, IonSpinner, IonButtons, IonBackButton,
+    IonHeader,
+    IonTitle,
+    IonToolbar,
+    IonItem,
+    IonInput,
+    IonLabel,
+    IonContent,
+    IonGrid,
+    IonRow,
+    IonCol,
+    IonCard,
+    IonCardHeader,
+    IonCardTitle,
+    IonList,
+    IonCardContent,
+    CommonModule,
+    FormsModule,
+    ReactiveFormsModule,
+    IonSelectOption,
+    IonSelect,
+    IonButton],
   selector: 'app-home',
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss']
