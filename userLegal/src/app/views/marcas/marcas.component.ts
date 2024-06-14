@@ -41,8 +41,10 @@ marcaAEditar: Marca | null = null;
   imagen: ['']
 });       }
 
-  ngOnInit() {
-    this.cargarMarcas();
+  async ngOnInit() {
+    // this.cargarMarcas();
+     this.marcas = await this.FirestoreService.getMarcas();
+  console.log('Marcas obtenidas:', this.marcas);
   }
 
    cancel() {
@@ -56,7 +58,7 @@ marcaAEditar: Marca | null = null;
   onWillDismiss(event: Event) {
     const ev = event as CustomEvent<OverlayEventDetail<string>>;
     if (ev.detail.role === 'confirm') {
-      this.agregarMarca();
+      // this.agregarMarca();
     }
   }
 
@@ -68,14 +70,27 @@ marcaAEditar: Marca | null = null;
     this.imagenMarca = event.target.files[0];
   }
 
-  async agregarMarca() {
-    await this.FirestoreService.addMarca(this.nuevaMarca, this.imagenMarca);
-    this.nuevaMarca = { nombre: '', imagen: '' };
-    this.imagenMarca = null;
-    this.cargarMarcas();
+  // async agregarMarca() {
+  //   await this.FirestoreService.addMarca(this.nuevaMarca, this.imagenMarca);
+  //   this.nuevaMarca = { nombre: '', imagen: '' };
+  //   this.imagenMarca = null;
+  //   this.cargarMarcas();
 
-    this.modal.dismiss();
+  //   this.modal.dismiss();
+  // }
+
+   async agregarMarca(nombre: string, imagen: File) {
+    const nuevaMarca: Marca = { nombre, imagen: '' };
+    try {
+      const marcaAgregada = await this.FirestoreService.addMarca(nuevaMarca, imagen);
+      this.marcas.push(marcaAgregada); // Asegurarse de que la marca agregada tenga el id correcto
+      console.log('Marca agregada:', marcaAgregada);
+    } catch (error) {
+      console.error('Error agregando la marca:', error);
+    }
   }
+
+
 
 
  async agregarOEditarProducto() {
@@ -117,26 +132,51 @@ marcaAEditar: Marca | null = null;
   // }
 
 
-  async eliminarMarca(marca: Marca) {
-    const alert = await this.alertController.create({
-      header: 'Confirmar Eliminación',
-      message: `¿Estás seguro de que quieres eliminar la marca "${marca.nombre}"?`,
-      buttons: [
-        {
-          text: 'Cancelar',
-          role: 'cancel',
-        },
-        {
-          text: 'Eliminar',
-          handler: async () => {
-            await this.FirestoreService.deleteMarca(marca);
-            this.cargarMarcas();
-            this.changeDetectorRef.detectChanges();
-          },
-        },
-      ],
-    });
+  // async eliminarMarca(marca: Marca) {
+  //   const alert = await this.alertController.create({
+  //     header: 'Confirmar Eliminación',
+  //     message: `¿Estás seguro de que quieres eliminar la marca "${marca.nombre}"?`,
+  //     buttons: [
+  //       {
+  //         text: 'Cancelar',
+  //         role: 'cancel',
+  //       },
+  //       {
+  //         text: 'Eliminar',
+  //         handler: async () => {
+  //           await this.FirestoreService.deleteMarca(marca);
+  //           this.cargarMarcas();
+  //           this.changeDetectorRef.detectChanges();
+  //         },
+  //       },
+  //     ],
+  //   });
 
-    await alert.present();
+  //   await alert.present();
+  // }
+
+
+async eliminarMarca(marca: Marca) {
+    if (!marca) {
+      console.error('La marca es null o undefined.');
+      return;
+    }
+
+    console.log('Marca a eliminar:', marca);
+
+    if (!marca.id) {
+      console.error('El id de la marca es null o undefined.');
+      return;
+    }
+
+    console.log(`Eliminando marca con id: ${marca.id}`);
+    try {
+      await this.FirestoreService.deleteMarca(marca);
+      this.marcas = this.marcas.filter(m => m.id !== marca.id);
+      console.log(`Marca eliminada: ${marca.id}`);
+    } catch (error) {
+      console.error('Error eliminando la marca:', error);
+    }
   }
+
 }

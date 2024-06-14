@@ -27,8 +27,10 @@ export class CategoriasPage implements OnInit {
     private alertController: AlertController
   ) {}
 
-  ngOnInit() {
-    this.cargarCategorias();
+  async ngOnInit() {
+    // this.cargarCategorias();
+     this.categorias = await this.firestoreService.getCategorias();
+    console.log('Categorías obtenidas en ngOnInit:', this.categorias);
   }
 
   async cargarCategorias() {
@@ -39,12 +41,23 @@ export class CategoriasPage implements OnInit {
     this.imagenCategoria = event.target.files[0];
   }
 
-  async agregarCategoria() {
-    await this.firestoreService.addCategoria(this.nuevaCategoria, this.imagenCategoria);
-    this.nuevaCategoria = { nombre: '', imagen: '' };
-    this.imagenCategoria = null;
-    this.cargarCategorias();
-    this.modal.dismiss();
+  // async agregarCategoria() {
+  //   await this.firestoreService.addCategoria(this.nuevaCategoria, this.imagenCategoria);
+  //   this.nuevaCategoria = { nombre: '', imagen: '' };
+  //   this.imagenCategoria = null;
+  //   this.cargarCategorias();
+  //   this.modal.dismiss();
+  // }
+
+   async agregarCategoria(nombre: string, imagen: File) {
+    const nuevaCategoria: Categoria = { nombre, imagen: '' };
+    try {
+      const categoriaAgregada = await this.firestoreService.addCategoria(nuevaCategoria, imagen);
+      this.categorias.push(categoriaAgregada); // Asegurarse de que la categoría agregada tenga el id correcto
+      console.log('Categoría agregada:', categoriaAgregada);
+    } catch (error) {
+      console.error('Error agregando la categoría:', error);
+    }
   }
 
   cancel() {
@@ -58,29 +71,56 @@ export class CategoriasPage implements OnInit {
   onWillDismiss(event: Event) {
     const ev = event as CustomEvent<OverlayEventDetail<string>>;
     if (ev.detail.role === 'confirm') {
-      this.agregarCategoria();
+      // this.agregarCategoria();
     }
   }
 
-  async eliminarCategoria(categoria: Categoria) {
-    const alert = await this.alertController.create({
-      header: 'Confirmar Eliminación',
-      message: `¿Estás seguro de que quieres eliminar la categoría "${categoria.nombre}"?`,
-      buttons: [
-        {
-          text: 'Cancelar',
-          role: 'cancel',
-        },
-        {
-          text: 'Eliminar',
-          handler: async () => {
-            await this.firestoreService.deleteCategoria(categoria);
-            this.cargarCategorias();
-          },
-        },
-      ],
-    });
+  // async eliminarCategoria(categoria: Categoria) {
+  //   const alert = await this.alertController.create({
+  //     header: 'Confirmar Eliminación',
+  //     message: `¿Estás seguro de que quieres eliminar la categoría "${categoria.nombre}"?`,
+  //     buttons: [
+  //       {
+  //         text: 'Cancelar',
+  //         role: 'cancel',
+  //       },
+  //       {
+  //         text: 'Eliminar',
+  //         handler: async () => {
+  //           await this.firestoreService.deleteCategoria(categoria);
+  //           this.cargarCategorias();
+  //         },
+  //       },
+  //     ],
+  //   });
 
-    await alert.present();
+  //   await alert.present();
+  // }
+
+
+ async eliminarCategoria(categoria: Categoria) {
+    if (!categoria) {
+      console.error('La categoría es null o undefined.');
+      return;
+    }
+
+    console.log('Categoría a eliminar:', categoria);
+
+    if (!categoria.id) {
+      console.error('El id de la categoría es null o undefined.');
+      return;
+    }
+
+    console.log(`Eliminando categoría con id: ${categoria.id}`);
+    try {
+      await this.firestoreService.deleteCategoria(categoria);
+      this.categorias = this.categorias.filter(c => c.id !== categoria.id);
+      console.log(`Categoría eliminada: ${categoria.id}`);
+    } catch (error) {
+      console.error('Error eliminando la categoría:', error);
+    }
   }
+
+
+
 }
