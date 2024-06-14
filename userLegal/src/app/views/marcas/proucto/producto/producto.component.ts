@@ -29,58 +29,44 @@ export class ProductosPage implements OnInit {
   imagenProducto: File | null = null;
   selectedFile: File | null = null;
 
-  constructor(
+    @ViewChild(IonModal) modal!: IonModal;
+
+
+ constructor(
     private firestoreService: FirestoreService,
     private alertController: AlertController,
     private fb: FormBuilder,
     private changeDetectorRef: ChangeDetectorRef
   ) {
-    // this.productoForm = this.fb.group({
-    //   id: [''],
-    //   nombre: ['', Validators.required],
-    //   descripcion: [''],
-    //   precio: [0, Validators.required],
-    //   precioFinal: [null],
-    //   precioDistribuidor: [null],
-    //   etiqueta: [''],
-    //   categoria: [null, Validators.required],
-    //   marca: [null, Validators.required],
-    //   imagen: ['']
-    // });
-
     this.productoForm = this.fb.group({
-  id: [''],
-  nombre: ['', Validators.required],
-  descripcion: [''],
-  precio: [0, Validators.required],
-  descuento: [0],
-  precioFinal: [{ value: 0, disabled: true }],
-  precioDistribuidor: [null],
-  etiqueta: [''],
-  categoria: [null, Validators.required],
-  marca: [null, Validators.required],
-  imagen: ['']
-});
+      id: [''],
+      nombre: ['', Validators.required],
+      descripcion: [''],
+      precio: [0, Validators.required],
+      descuento: [0],
+      precioFinal: [{ value: 0, disabled: true }],
+      precioDistribuidor: [null],
+      etiqueta: [''],
+      categoria: [null, Validators.required],
+      marca: [null, Validators.required],
+      imagen: ['']
+    });
 
+    this.productoForm.get('precio')!.valueChanges.subscribe(() => {
+      this.calcularPrecioFinal();
+    });
+    this.productoForm.get('descuento')!.valueChanges.subscribe(() => {
+      this.calcularPrecioFinal();
+    });
   }
 
-  ngOnInit() {
+  async ngOnInit() {
     this.cargarProductos();
     this.cargarMarcas();
     this.cargarCategorias();
-
-
-this.productoForm.get('precio')!.valueChanges.subscribe(() => {
-      this.calcularPrecioFinal(); // Calcular el precio final al cambiar el precio
-    });
-    this.productoForm.get('descuento')!.valueChanges.subscribe(() => {
-      this.calcularPrecioFinal(); // Calcular el precio final al cambiar el descuento
-    });
-
   }
 
-
-calcularPrecioFinal() {
+  calcularPrecioFinal() {
     const precio = this.productoForm.get('precio')!.value;
     const descuento = this.productoForm.get('descuento')!.value;
     const precioFinal = precio - (precio * descuento / 100);
@@ -88,12 +74,18 @@ calcularPrecioFinal() {
   }
 
   async cargarProductos() {
-  this.productos = await this.firestoreService.getProductos();
-  console.log('estos son los productos=>',this.productos)
-  this.changeDetectorRef.detectChanges();
-}
+    this.productos = await this.firestoreService.getProductos();
+    console.log('Productos obtenidos:', this.productos);
+    this.changeDetectorRef.detectChanges();
+  }
 
+  async cargarMarcas() {
+    this.marcas = await this.firestoreService.getMarcas();
+  }
 
+  async cargarCategorias() {
+    this.categorias = await this.firestoreService.getCategorias();
+  }
 
   getCategoriaNombre(categoriaRef: DocumentReference<DocumentData>): string {
     if (categoriaRef) {
@@ -110,18 +102,6 @@ calcularPrecioFinal() {
     }
     return 'Sin marca';
   }
-
-
-  async cargarMarcas() {
-    this.marcas = await this.firestoreService.getMarcas();
-  }
-
-  async cargarCategorias() {
-    this.categorias = await this.firestoreService.getCategorias();
-  }
-
-
-
 
   onFileSelected(event: any) {
     this.imagenProducto = event.target.files[0];
@@ -145,7 +125,7 @@ calcularPrecioFinal() {
     }
 
     const productoData = this.productoForm.value;
-     productoData.precioFinal = this.productoForm.get('precioFinal')!.value;
+    productoData.precioFinal = this.productoForm.get('precioFinal')!.value;
     if (this.editMode && this.productoAEditar) {
       productoData.id = this.productoAEditar.id;
       await this.firestoreService.updateProducto(productoData, this.imagenProducto);
