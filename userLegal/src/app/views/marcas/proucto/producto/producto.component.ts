@@ -74,6 +74,12 @@ export class ProductosPage implements OnInit {
   imagenProducto: File | null = null;
   selectedFile: File | null = null;
 
+
+  // Variables para la paginación
+  // currentPage: number = 1;
+  // pageSize: number = 5;
+  // totalProductos: number = 0;
+
     @ViewChild(IonModal) modal!: IonModal;
 
 
@@ -87,7 +93,7 @@ export class ProductosPage implements OnInit {
     this.productoForm = this.fb.group({
       id: [''],
       nombre: ['', Validators.required],
-      descripcion: [''],
+      descripcion: ['', Validators.required],
       precio: [0, Validators.required],
       descuento: [0],
       precioFinal: [{ value: 0, disabled: true }],
@@ -97,6 +103,8 @@ export class ProductosPage implements OnInit {
       marca: [null, Validators.required],
       imagen: ['']
     });
+
+
 
     this.productoForm.get('precio')!.valueChanges.subscribe(() => {
       this.calcularPrecioFinal();
@@ -171,6 +179,11 @@ export class ProductosPage implements OnInit {
     }
 
     const productoData = this.productoForm.value;
+
+
+
+    console.log('Descripción del producto:', this.productoForm.get('descripcion')!.value);
+
     productoData.precioFinal = this.productoForm.get('precioFinal')!.value;
 
     const loading = await this.loadingController.create({
@@ -195,6 +208,8 @@ export class ProductosPage implements OnInit {
       this.cargarProductos();
     }
   }
+
+
 
   async eliminarProducto(producto: Producto) {
     if (!producto) {
@@ -284,4 +299,22 @@ export class ProductosPage implements OnInit {
     });
     await alert.present();
   }
+
+
+ // Métodos para la paginación
+  // nextPage() {
+  //   if (this.currentPage * this.pageSize < this.totalProductos) {
+  //     this.currentPage++;
+  //     this.cargarProductos();
+  //   }
+  // }
+
+  // prevPage() {
+  //   if (this.currentPage > 1) {
+  //     this.currentPage--;
+  //     this.cargarProductos();
+  //   }
+  // }
+
+
 }

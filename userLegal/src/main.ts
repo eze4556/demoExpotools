@@ -27,6 +27,7 @@ bootstrapApplication(AppComponent, {
     provideRouter(routes),
     importProvidersFrom(
      provideFirebaseApp(() => initializeApp(environment.firebase)),
+
       provideAuth(() => getAuth()),
       provideFirestore(() => getFirestore()),
       provideStorage(() => getStorage()),
@@ -36,4 +37,5 @@ bootstrapApplication(AppComponent, {
     ScreenTrackingService,
     UserTrackingService
   ],
+  
 });

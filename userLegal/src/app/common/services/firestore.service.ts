@@ -12,6 +12,8 @@ import {
   orderBy,
   writeBatch,
   setDoc,
+  collectionData,
+  startAfter, limit, DocumentData
 } from '@angular/fire/firestore';
 import { Marca } from '../models/marca.model';
 import { Categoria } from '../models/categoria.model';
@@ -25,6 +27,7 @@ import {
 } from '@angular/fire/storage';
 import { AngularFirestore } from '@angular/fire/compat/firestore/firestore';
 import { v4 as uuidv4 } from 'uuid';
+import { Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -203,6 +206,7 @@ export class FirestoreService {
       console.error('Error eliminando la categoría:', error);
     }
   }
+
 
   // Productos
   // Obtener todos los productos

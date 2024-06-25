@@ -40,6 +40,16 @@
     </ion-row>
   </ion-grid>
 
+<!-- 
+<ion-row>
+    <ion-col>
+      <ion-button (click)="prevPage()" [disabled]="currentPage === 1">Anterior</ion-button>
+      <ion-button (click)="nextPage()" [disabled]="currentPage * pageSize >= totalProductos">Siguiente</ion-button>
+    </ion-col>
+  </ion-row> -->
+
+
+
   <!-- Modal para agregar/editar producto -->
   <ion-modal [isOpen]="isModalOpen" (willDismiss)="onWillDismiss($event)">
     <ng-template>
@@ -58,10 +68,12 @@
             <ion-label position="stacked">Nombre</ion-label>
             <ion-input formControlName="nombre"></ion-input>
           </ion-item>
-          <ion-item>
-            <ion-label position="stacked">Descripción</ion-label>
-            <ion-textarea formControlName="descripcion"></ion-textarea>
-          </ion-item>
+
+      <ion-item>
+    <ion-label position="stacked">Descripción</ion-label>
+    <ion-input formControlName="descripcion"></ion-input>
+  </ion-item>
+
           <ion-item>
             <ion-label position="stacked">Precio</ion-label>
             <ion-input type="number" formControlName="precio"></ion-input>
