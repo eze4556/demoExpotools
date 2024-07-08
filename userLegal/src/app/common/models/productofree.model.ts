@@ -1,11 +1,12 @@
 import { DocumentReference } from '@angular/fire/firestore';
 
-export interface Producto {
+export interface Productoferta {
   id: string;
   nombre: string;
  descripcion: string;
   precio: number;
-  precioFinal?: number; // Opcional si no hay descuento
+  descuento?:number;
+  precioFinal?: number;
   codigo: string;
   etiqueta: string;
   categoria: DocumentReference; // Referencia a la categoría

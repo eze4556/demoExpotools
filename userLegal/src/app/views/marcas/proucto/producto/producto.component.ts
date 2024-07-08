@@ -58,6 +58,7 @@ IonModal,
     ReactiveFormsModule,
     IonSelectOption,
     IonSelect,
+    IonSearchbar,
     IonButton],
   selector: 'app-productos',
   templateUrl: './producto.component.html',
@@ -73,12 +74,10 @@ export class ProductosPage implements OnInit {
   productoAEditar: Producto | null = null;
   imagenProducto: File | null = null;
   selectedFile: File | null = null;
+  searchTerm: string = '';
 
 
-  // Variables para la paginación
-  // currentPage: number = 1;
-  // pageSize: number = 5;
-  // totalProductos: number = 0;
+
 
     @ViewChild(IonModal) modal!: IonModal;
 
@@ -97,7 +96,7 @@ export class ProductosPage implements OnInit {
       precio: [0, Validators.required],
       descuento: [0],
       precioFinal: [{ value: 0, disabled: true }],
-      precioDistribuidor: [null],
+      codigo: [''],
       etiqueta: [''],
       categoria: [null, Validators.required],
       marca: [null, Validators.required],
@@ -127,8 +126,44 @@ export class ProductosPage implements OnInit {
     this.productoForm.get('precioFinal')!.setValue(precioFinal);
   }
 
+paginatedProductos: Producto[] = [];
+currentPage: number = 1;
+  pageSize: number = 6;
+
+// getProductosPaginados(): Producto[] {
+//     const startIndex = (this.currentPage - 1) * this.pageSize;
+//     return this.productos.slice(startIndex, startIndex + this.pageSize);
+//   }
+
+getProductosPaginados(): Producto[] {
+    const filteredProductos = this.productos.filter(producto =>
+      (producto.nombre && producto.nombre.toLowerCase().includes(this.searchTerm.toLowerCase())) ||
+      (producto.codigo && producto.codigo.toLowerCase().includes(this.searchTerm.toLowerCase()))
+    );
+    const startIndex = (this.currentPage - 1) * this.pageSize;
+    return filteredProductos.slice(startIndex, startIndex + this.pageSize);
+  }
+
+
+  goToPreviousPage() {
+    if (this.currentPage > 1) {
+      this.currentPage--;
+      this.paginatedProductos = this.getProductosPaginados();
+    }
+  }
+
+  goToNextPage() {
+    const totalPages = Math.ceil(this.productos.length / this.pageSize);
+    if (this.currentPage < totalPages) {
+      this.currentPage++;
+      this.paginatedProductos = this.getProductosPaginados();
+    }
+  }
+
+
   async cargarProductos() {
     this.productos = await this.firestoreService.getProductos();
+    this.paginatedProductos = this.getProductosPaginados();
     console.log('Productos obtenidos:', this.productos);
     this.changeDetectorRef.detectChanges();
   }
@@ -300,21 +335,17 @@ export class ProductosPage implements OnInit {
     await alert.present();
   }
 
+filtrarProductos(event: any) {
+  const value = event.target.value;
+  if (value) {
+    this.searchTerm = value.toLowerCase();
+  } else {
+    this.searchTerm = '';
+  }
+  this.currentPage = 1;  // Reset the current page to 1 after filtering
+  this.paginatedProductos = this.getProductosPaginados();
+}
 
- // Métodos para la paginación
-  // nextPage() {
-  //   if (this.currentPage * this.pageSize < this.totalProductos) {
-  //     this.currentPage++;
-  //     this.cargarProductos();
-  //   }
-  // }
-
-  // prevPage() {
-  //   if (this.currentPage > 1) {
-  //     this.currentPage--;
-  //     this.cargarProductos();
-  //   }
-  // }
 
 
 }

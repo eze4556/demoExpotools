@@ -1,6 +1,6 @@
 <ion-header>
   <ion-toolbar color="primary">
-    <ion-title>Productos</ion-title>
+    <ion-title>Productos En Oferta</ion-title>
     <ion-buttons slot="start">
       <ion-back-button defaultHref="/"></ion-back-button>
     </ion-buttons>
@@ -31,18 +31,18 @@
       <ion-col size="2">Acciones</ion-col>
     </ion-row>
     <!-- <ion-row *ngFor="let producto of productos | slice:0:8"> -->
-        <ion-row *ngFor="let producto of getProductosPaginados()">
-      <ion-col size="2">{{ producto.nombre }}</ion-col>
-      <ion-col size="2">{{ getCategoriaNombre(producto.categoria) }}</ion-col>
-      <ion-col size="2">{{ getMarcaNombre(producto.marca) }}</ion-col>
-      <ion-col size="2">{{ producto.codigo }}</ion-col>
-      <ion-col size="1">{{ producto.precioFinal }}</ion-col>
+        <ion-row *ngFor="let productosOferta of getProductosPaginados()">
+      <ion-col size="2">{{ productosOferta.nombre }}</ion-col>
+      <ion-col size="2">{{ getCategoriaNombre(productosOferta.categoria) }}</ion-col>
+      <ion-col size="2">{{ getMarcaNombre(productosOferta.marca) }}</ion-col>
+      <ion-col size="2">{{ productosOferta.codigo }}</ion-col>
+      <ion-col size="1">{{ productosOferta.precioFinal }}</ion-col>
       <ion-col size="1">
-        <img *ngIf="producto.imagen" [src]="producto.imagen" alt="Imagen de {{ producto.nombre }}" style="width: 50px; height: 50px;" />
+        <img *ngIf="productosOferta.imagen" [src]="productosOferta.imagen" alt="Imagen de {{ productosOferta.nombre }}" style="width: 50px; height: 50px;" />
       </ion-col>
       <ion-col size="2">
-        <ion-button fill="outline" (click)="editarProducto(producto)">Editar</ion-button>
-        <ion-button color="danger" fill="outline" (click)="eliminarProducto(producto)">Eliminar</ion-button>
+        <ion-button fill="outline" (click)="editarProducto(productosOferta)">Editar</ion-button>
+        <ion-button color="danger" fill="outline" (click)="eliminarProducto(productosOferta)">Eliminar</ion-button>
       </ion-col>
     </ion-row>
   </ion-grid>
@@ -66,7 +66,7 @@
       </ion-header>
 
       <ion-content>
-        <form [formGroup]="productoForm" (ngSubmit)="agregarOEditarProducto()">
+        <form [formGroup]="productoOfertaForm" (ngSubmit)="agregarProducto()">
           <ion-item>
             <ion-label position="stacked">Nombre</ion-label>
             <ion-input formControlName="nombre"></ion-input>

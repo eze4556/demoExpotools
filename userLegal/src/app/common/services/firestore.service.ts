@@ -1,3 +1,4 @@
+
 import { Injectable } from '@angular/core';
 import {
   Firestore,
@@ -18,6 +19,9 @@ import {
 import { Marca } from '../models/marca.model';
 import { Categoria } from '../models/categoria.model';
 import { Producto } from '../models/producto.model';
+import { UserI } from '../models/users.models';
+import { Productoferta } from '../models/productofree.model';
+
 import {
   Storage,
   ref,
@@ -28,6 +32,7 @@ import {
 import { AngularFirestore } from '@angular/fire/compat/firestore/firestore';
 import { v4 as uuidv4 } from 'uuid';
 import { Observable } from 'rxjs';
+import { User } from 'firebase/auth';
 
 @Injectable({
   providedIn: 'root',
@@ -122,6 +127,25 @@ export class FirestoreService {
   }
 //Fin Marcas
 
+  // Usuario
+
+  //  Obtener todas las usuarios
+
+
+    // Eliminar un usuario
+  async deleteUser(user: UserI): Promise<void> {
+  try {
+    if (!user || !user.id) {
+      throw new Error('El usuario o el ID de usuario es nulo o no está definido.');
+    }
+    const userRef = doc(this.firestore, 'usuarios', user.id);
+    await deleteDoc(userRef);
+    console.log(`Usuario eliminado: ${user.id}`);
+  } catch (error) {
+    console.error('Error eliminando el usuario:', error);
+    throw error;
+  }
+  }
 
 
   // Categorías
@@ -222,7 +246,7 @@ export class FirestoreService {
         descripcion: data['descripcion'],
         precio: data['precio'],
         precioFinal: data['precioFinal'] || null,
-        precioDistribuidor: data['precioDistribuidor'] || null,
+        codigo: data['codigo'],
         etiqueta: data['etiqueta'],
         categoria: data['categoria'],
         marca: data['marca'],
@@ -250,6 +274,86 @@ export class FirestoreService {
       throw error;
     }
   }
+
+// OFERTA
+
+   // Añadir un nuevo producto OFERTA
+ async addProductoferta(productoferta: Productoferta, imagen: File | null = null): Promise<Productoferta> {
+  try {
+    if (imagen) {
+      const storageRef = ref(this.storage, `productofertas/${imagen.name}`);
+      const uploadTask = uploadBytesResumable(storageRef, imagen);
+      await uploadTask;
+      productoferta.imagen = await getDownloadURL(storageRef);
+    }
+    const id = uuidv4(); // Generar un id único
+    const docRef = doc(this.firestore, `productofertas/${id}`);
+    await setDoc(docRef, { ...productoferta, id });
+    console.log(`Producto en oferta añadido con id: ${id}`);
+    return { ...productoferta, id };
+  } catch (error) {
+    console.error('Error añadiendo el producto en oferta:', error);
+    throw error;
+  }
+}
+
+
+
+ async getProductofertas(): Promise<Productoferta[]> {
+  const ofertasSnapshot = await getDocs(
+    query(collection(this.firestore, 'productofertas'), orderBy('nombre'))
+  );
+  return ofertasSnapshot.docs.map((doc) => {
+    const data = doc.data();
+    return {
+      id: doc.id,
+      nombre: data['nombre'],
+      descripcion: data['descripcion'],
+      precio: data['precio'],
+      descuento: data['descuento'] || null,
+      precioFinal: data['precioFinal'] || null,
+      codigo: data['codigo'],
+      etiqueta: data['etiqueta'],
+      categoria: data['categoria'],
+      marca: data['marca'],
+      imagen: data['imagen'] || null, // Manejar imagen opcional
+    } as Productoferta;
+  });
+}
+
+async updateProductoferta(productoferta: Productoferta, imagen: File | null = null): Promise<Productoferta> {
+  try {
+    if (imagen) {
+      const storageRef = ref(this.storage, `productofertas/${imagen.name}`);
+      const uploadTask = uploadBytesResumable(storageRef, imagen);
+      await uploadTask;
+      productoferta.imagen = await getDownloadURL(storageRef);
+    }
+    const docRef = doc(this.firestore, `productofertas/${productoferta.id}`);
+    await setDoc(docRef, { ...productoferta });
+    console.log(`Producto en oferta actualizado con id: ${productoferta.id}`);
+    return productoferta;
+  } catch (error) {
+    console.error('Error actualizando el producto en oferta:', error);
+    throw error;
+  }
+}
+
+async deleteProductoferta(id: string): Promise<void> {
+  try {
+    const docRef = doc(this.firestore, `productofertas/${id}`);
+    await deleteDoc(docRef);
+    console.log(`Producto en oferta eliminado con id: ${id}`);
+  } catch (error) {
+    console.error('Error eliminando el producto en oferta:', error);
+    throw error;
+  }
+}
+
+
+
+// FIN OFERTA
+
 
   // Actualizar un producto existente
   async updateProducto(producto: Producto, imagen?: File): Promise<void> {
@@ -330,4 +434,52 @@ async getEtiquetas(): Promise<string[]> {
 
   await batch.commit();
 }
+
+
+
+
+
+// ACTUALIZA PRECIOS POR MARCA
+ async actualizarPreciosPorMarca(marca: Marca, porcentaje: number): Promise<void> {
+    try {
+      const productosRef = collection(this.firestore, 'productos');
+      const q = query(productosRef, where('marca.id', '==', marca.id));
+      const snapshot = await getDocs(q);
+
+      console.log(`Ejecutando consulta para marca: ${marca.nombre}`);
+      console.log(`Documentos recuperados: ${snapshot.size}`);
+
+      if (snapshot.empty) {
+        console.log(`No se encontraron productos para la marca: ${marca.nombre}`);
+        return;
+      }
+
+      const batch = writeBatch(this.firestore);
+
+      snapshot.forEach(docSnap => {
+        const data = docSnap.data() as Producto;
+        const nuevoPrecio = data.precio * (1 + porcentaje / 100);
+        const docRef = doc(this.firestore, 'productos', docSnap.id);
+        batch.update(docRef, { precioFinal: nuevoPrecio, precio: nuevoPrecio });
+      });
+
+      await batch.commit();
+      console.log('Precios actualizados con éxito');
+    } catch (error) {
+      console.error('Error actualizando precios:', error);
+    }
+  }
+
+
+ async getMarcasEtiqueta(): Promise<Marca[]> {
+    const marcasRef = collection(this.firestore, 'marcas');
+    const snapshot = await getDocs(marcasRef);
+    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Marca[];
+  }
+
+
 }
+
+
+
+

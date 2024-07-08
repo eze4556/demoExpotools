@@ -30,6 +30,7 @@ import {
   IonToolbar,
   IonTitle,
   IonHeader, IonBackButton, IonButtons, IonSpinner, IonSelectOption, IonSelect, IonSearchbar, IonAvatar } from '@ionic/angular/standalone';
+import { Marca } from 'src/app/common/models/marca.model';
 
 @Component({
   standalone: true,
@@ -61,23 +62,46 @@ import {
   styleUrls: ['./etiquetas.component.scss']
 })
 export class GestionEtiquetasPage implements OnInit {
-  etiquetas: string[] = [];
-   selectedEtiqueta: string = '';
+//   etiquetas: string[] = [];
+//    selectedEtiqueta: string = '';
+//   porcentajeAumento: number | null = null;
+
+//   constructor(private firestoreService: FirestoreService) {}
+
+//   ngOnInit() {
+//     this.cargarEtiquetas();
+//   }
+
+//   async cargarEtiquetas() {
+//     this.etiquetas = await this.firestoreService.getEtiquetas();
+//   }
+
+//   async actualizarPrecios() {
+//     if (this.selectedEtiqueta && this.porcentajeAumento > 0) {
+//       await this.firestoreService.actualizarPreciosPorEtiqueta(this.selectedEtiqueta, this.porcentajeAumento);
+//       alert('Precios actualizados con éxito');
+//     }
+//   }
+// }
+
+
+  marcas: Marca[] = [];
+  selectedMarca: Marca | null = null;
   porcentajeAumento: number | null = null;
 
   constructor(private firestoreService: FirestoreService) {}
 
   ngOnInit() {
-    this.cargarEtiquetas();
+    this.cargarMarcas();
   }
 
-  async cargarEtiquetas() {
-    this.etiquetas = await this.firestoreService.getEtiquetas();
+  async cargarMarcas() {
+    this.marcas = await this.firestoreService.getMarcasEtiqueta();
   }
 
   async actualizarPrecios() {
-    if (this.selectedEtiqueta && this.porcentajeAumento > 0) {
-      await this.firestoreService.actualizarPreciosPorEtiqueta(this.selectedEtiqueta, this.porcentajeAumento);
+    if (this.selectedMarca && this.porcentajeAumento !== null) {
+      await this.firestoreService.actualizarPreciosPorMarca(this.selectedMarca, this.porcentajeAumento);
       alert('Precios actualizados con éxito');
     }
   }
